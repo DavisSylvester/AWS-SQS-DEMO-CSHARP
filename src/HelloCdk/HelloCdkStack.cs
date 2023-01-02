@@ -9,9 +9,7 @@ namespace HelloCdk
     {
         internal HelloCdkStack(Construct scope, string id, cdk.IStackProps props = null) : base(scope, id, props)
         {
-            var DLtestQueue = new SQS.DeadLetterQueue() {
-                Queue = "DLQUEUE"
-            };
+
 
             // The code that defines your stack goes here
             var testQueue = new SQS.Queue(this, "CdkLabQueue", new SQS.QueueProps
@@ -19,7 +17,14 @@ namespace HelloCdk
                 VisibilityTimeout = Duration.Seconds(300),
                 QueueName = "test-davis-one.fifo",
                 Fifo = true,
-                DeadLetterQueue = DLtestQueue
+                DeadLetterQueue = new SQS.DeadLetterQueue()
+                {
+                    MaxReceiveCount = 3,
+                    Queue = new SQS.Queue(this, "dlqCdkLabQueue", new SQS.QueueProps
+                    {
+                        QueueName = "test-davis-one-dql.fifo",
+                    })
+                }
             });
 
             var testQueueTwo = new SQS.Queue(this, "CdkLabQueueTwo", new SQS.QueueProps
@@ -28,7 +33,7 @@ namespace HelloCdk
                 QueueName = "test-davis-two"
             });
 
-
+            // var producerLambda = new Lambda
         }
     }
 }
